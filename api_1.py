@@ -1,22 +1,8 @@
 from fastapi import FastAPI, HTTPException
 import psycopg2
-from pydantic import BaseModel, Field
+from schemas import CreateStore, ViewStore
 
 app = FastAPI()
-
-
-class CreateStore(BaseModel):
-    city: str
-    email: str = Field(max_length=20)
-    brand: str
-
-
-class ViewStore(BaseModel):
-    id: int = Field()
-    city: str = Field()
-    email: str = Field(max_length=20)
-    brand: str = Field()
-
 
 host = "0.0.0.0"  # Use the service name as the hostname ("localhost" works)
 port = 5432
