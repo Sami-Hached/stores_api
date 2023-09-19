@@ -1,0 +1,17 @@
+version: "1.0"
+
+services:
+  api_learning_sql:
+    image: postgres:13
+    environment:
+    - POSTGRES_DB=learning_sql
+    - POSTGRES_USER=sami
+    - POSTGRES_PASSWORD=secret_123
+    volumes:
+      - postgres_data:/var/lib/postgres/data/
+    ports:
+      - "5432:5432"  # Expose the PostgreSQL container's port
+
+volumes:
+  postgres_data:
+    driver: local
