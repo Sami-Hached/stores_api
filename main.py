@@ -28,8 +28,8 @@ def get_db() -> SessionLocal:
 
 
 @app.get("/")
-async def root_get() -> None:
-    return {"message": "Hello World"}
+async def root_get() -> str:
+    return "Hello World"
 
 
 @app.get("/items")
@@ -37,9 +37,9 @@ async def read_all_item(db: Session = Depends(get_db)) -> list[schemas.ViewStore
     return crud.get_all_stores(db)
 
 
-@app.get("/items/{item_id}")
-async def read_item(item_id: int, db: Session = Depends(get_db)) -> schemas.ViewStore:
-    db_store = crud.get_store(db, store_id=item_id)
+@app.get("/item/{email}")
+async def read_item(email: str, db: Session = Depends(get_db)) -> schemas.ViewStore:
+    db_store = crud.get_store_by_email(db, email=email)
     if db_store is None:
         raise HTTPException(status_code=404, detail="store not found")
     return serialize_store(db_store)
