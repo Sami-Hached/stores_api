@@ -45,10 +45,6 @@ async def read_item(email: str, db: Session = Depends(get_db)) -> schemas.ViewSt
     return serialize_store(db_store)
 
 
-def serialize_store(db_item: models.StoresDB) -> schemas.ViewStore:
-    return schemas.ViewStore(id=db_item.id, city=db_item.city, email=db_item.email, brand=db_item.brand)
-
-
 @app.post("/add_item")
 async def add_item(store: schemas.CreateStore, db: Session = Depends(get_db)):
     db_store = crud.get_store_by_email(db, store.email)
@@ -67,3 +63,9 @@ async def delete_item(item_id: int, db: Session = Depends(get_db)):
 async def delete_table(db: Session = Depends(get_db)):
     crud.delete_all_store(db)
     return "all stores have been deleted."
+
+
+def serialize_store(db_item: models.StoresDB) -> schemas.ViewStore:
+    return schemas.ViewStore(
+        id=db_item.id, city=db_item.city, email=db_item.email, brand=db_item.brand
+    )
