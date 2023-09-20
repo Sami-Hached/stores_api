@@ -22,3 +22,15 @@ def create_store(db: Session, store: schemas.CreateStore):
     db.commit()
     db.refresh(db_store)
     return db_store
+
+
+def delete_store(db: Session, store_id: int):
+    db.query(models.StoresDB).filter(models.StoresDB.id == store_id).delete()
+    db.commit()
+    return
+
+
+def delete_all_store(db: Session):
+    db.query(models.StoresDB).delete()
+    db.commit()
+    return

@@ -57,34 +57,13 @@ async def add_item(store: schemas.CreateStore, db: Session = Depends(get_db)):
     return crud.create_store(db=db, store=store)
 
 
-"""@app.post("/delete_item/{item_id}")
-async def delete_item(item_id: int):
-    try:
-        with conn.cursor() as cur:
-            cur.execute(
-                "DELETE FROM stores_de "
-                f"WHERE store_id={item_id}"
-            )
-            conn.commit()
-        return {"message": f"store with store_id {item_id} deleted."}
-    except Exception as e:
-        conn.rollback()
-        print(e)
-        return {"message": "failed due to unknown error."}
+@app.post("/delete_item/{item_id}")
+async def delete_item(item_id: int, db: Session = Depends(get_db)):
+    crud.delete_store(db, item_id)
+    return f"Store with item_id: {item_id} has been deleted."
 
 
 @app.post("/delete_all")
-async def delete_table():
-    try:
-        with conn.cursor() as cur:
-            cur.execute(
-                "DROP TABLE stores_de;"
-            )
-            conn.commit()
-        return {
-            "message": "All stores deleted. In order to add new items, please create a new table first."
-        }
-    except Exception as e:
-        conn.rollback()
-        print(e)
-        return {"message": "failed due to unknown error."}"""
+async def delete_table(db: Session = Depends(get_db)):
+    crud.delete_all_store(db)
+    return "all stores have been deleted."
