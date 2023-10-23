@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
 
@@ -7,13 +9,6 @@ import schemas
 from database import SessionLocal, engine
 
 app = FastAPI()
-
-# Leaving these credentials here for debugging
-host = "0.0.0.0"  # Use the service name as the hostname ("localhost" works)
-port = 5432
-database = "learning_sql"
-user = "sami"
-password = "secret_123"
 
 # This creates the database
 models.Base.metadata.create_all(bind=engine)
@@ -32,12 +27,12 @@ async def root_get() -> str:
     return "Hello World"
 
 
-@app.get("/items")
+@app.get("/items", tags=["get_methods"])
 async def read_all_item(db: Session = Depends(get_db)) -> list[schemas.ViewStore]:
     return crud.get_all_stores(db)
 
 
-@app.get("/item/{email}")
+@app.get("/items/{email}")
 async def read_item(email: str, db: Session = Depends(get_db)) -> schemas.ViewStore:
     db_store = crud.get_store_by_email(db, email=email)
     if db_store is None:
@@ -54,9 +49,10 @@ async def add_item(store: schemas.CreateStore, db: Session = Depends(get_db)):
 
 
 @app.post("/delete_item/{item_id}")
-async def delete_item(item_id: int, db: Session = Depends(get_db)):
-    crud.delete_store(db, item_id)
-    return f"Store with item_id: {item_id} has been deleted."
+async def delete_item(item_id: str, db: Session = Depends(get_db)):
+    item_uuid = uuid.UUID(item_id)
+    crud.delete_store(db, item_uuid)
+    return f"Store with item_id: {item_uuid} has been deleted."
 
 
 @app.post("/delete_all")

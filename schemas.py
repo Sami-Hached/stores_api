@@ -1,3 +1,5 @@
+import uuid
+
 from pydantic import BaseModel, Field
 
 
@@ -13,7 +15,7 @@ class CreateStore(BaseModel):
 
 
 class ViewStore(BaseModel):
-    id: int = Field()
+    id: uuid.UUID = Field()
     city: str = Field()
     email: str = Field(max_length=20)
     brand: str = Field()

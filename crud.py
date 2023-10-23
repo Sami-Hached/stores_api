@@ -15,13 +15,18 @@ def get_all_stores(db: Session, limit: int = 100):
     return db.query(models.StoresDB).limit(limit).all()
 
 
-def create_store(db: Session, store: schemas.CreateStore):
+def create_store(db: Session, store: schemas.CreateStore) -> schemas.ViewStore:
     # This is where to use UUID for store_ids to be added?
     db_store = models.StoresDB(**store.dict())
     db.add(db_store)
     db.commit()
     db.refresh(db_store)
-    return db_store
+    return schemas.ViewStore(
+        id=db_store.id,
+        city=db_store.city,
+        email=db_store.email,
+        brand=db_store.brand,
+    )
 
 
 def delete_store(db: Session, store_id: int):
