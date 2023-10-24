@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String
 from sqlalchemy.dialects import postgresql
-from database import Base
+from .database import Base
 import uuid
 
 

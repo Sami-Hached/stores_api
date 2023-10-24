@@ -1,6 +1,6 @@
 import uuid
 from fastapi.testclient import TestClient
-from main import app
+from src.presentation.api.v1.main import app
 
 client = TestClient(app)
 

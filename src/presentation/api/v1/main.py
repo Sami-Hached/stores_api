@@ -3,10 +3,8 @@ import uuid
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
 
-import crud
-import models
-import schemas
-from database import SessionLocal, engine
+from src.infrastructure import crud, schemas, models
+from src.infrastructure.database import SessionLocal, engine
 
 app = FastAPI()
 

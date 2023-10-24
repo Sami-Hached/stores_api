@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-import models
-import schemas
+from . import models
+from . import schemas
 
 
 def get_store(db: Session, store_id: int):
