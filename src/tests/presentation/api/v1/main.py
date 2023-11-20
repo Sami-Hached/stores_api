@@ -1,35 +1,35 @@
 import uuid
 
 import pytest
-from src.presentation.api.v1.main import app, get_db
+import os
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
-from src.infrastructure.database import Base
+
+from src.presentation.api.v1.main import app, get_db
+from src.infrastructure.database import get_session, get_engine
+from src.infrastructure import models
 
 
-# TEST_DATABASE_URL = "sqlite://"
-#
-# engine = create_engine(
-#     TEST_DATABASE_URL,
-#     connect_args={"check_same_thread": False},
-#     poolclass=StaticPool,
-# )
-#
-# TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-#
-# Base.metadata.create_all(bind=engine)
-#
-# def override_get_db():
-#     try:
-#         db = TestingSessionLocal()
-#         yield db
-#     finally:
-#         db.close()
-#
-#
-# app.dependency_overrides[get_db] = override_get_db
+test_config = {
+        "user": os.environ["TEST_DB_USER"],
+        "password": os.environ["TEST_DB_PASSWORD"],
+        "host": os.environ["TEST_DB_HOST"],
+        "port": os.environ["TEST_DB_PORT"],
+        "database": os.environ["TEST_DB_DATABASE"],
+    }
+
+def override_get_db():
+    try:
+        session = get_session(test_config)
+        db = session()
+        yield db
+    finally:
+        db.close()
+
+# for api methods to access the test database instead of the main one
+app.dependency_overrides[get_db] = override_get_db
+
+# create tables within the test database
+models.Base.metadata.create_all(bind=get_engine(test_config))
 
 client = TestClient(app)
 
@@ -62,10 +62,12 @@ def test_delete_store(preexisting_store):
     assert response.status_code == 200
     assert response.json() == f"Store with item_id: {preexisting_store['id']} has been deleted."
 
+
 @pytest.fixture(autouse=True)
 def teardown():
     yield
     client.post("/delete_all")
+
 
 @pytest.fixture
 def preexisting_store():

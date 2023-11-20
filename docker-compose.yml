@@ -11,6 +11,11 @@ services:
       - DB_USER=sami
       - DB_PORT=5432
       - DB_DATABASE=learning_sql
+      - TEST_DB_HOST=localhost
+      - TEST_DB_PASSWORD=non_secret
+      - TEST_DB_USER=test-user
+      - TEST_DB_PORT=5433
+      - TEST_DB_DATABASE=learning_sql_test
 
   api_learning_sql:
     image: postgres:13
