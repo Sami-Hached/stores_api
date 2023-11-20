@@ -1,19 +1,30 @@
+import logging
+import os
 import uuid
 
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
 
 from src.infrastructure import crud, schemas, models
-from src.infrastructure.database import SessionLocal, engine
+from src.infrastructure.database import get_engine, get_session
 
 app = FastAPI()
 
+config = {
+        "user": os.environ["DB_USER"],
+        "password": os.environ["DB_PASSWORD"],
+        "host": os.environ["DB_HOST"],
+        "port": os.environ["DB_PORT"],
+        "database": os.environ["DB_DATABASE"],
+    }
+
 # This creates the database
-models.Base.metadata.create_all(bind=engine)
+models.Base.metadata.create_all(bind=get_engine(config))
 
 # Dependency
-def get_db() -> SessionLocal:
-    db = SessionLocal()
+def get_db() -> Session:
+    session = get_session(config)
+    db = session()
     try:
         yield db
     finally:
@@ -22,7 +33,7 @@ def get_db() -> SessionLocal:
 
 @app.get("/")
 async def root_get() -> str:
-    return "Hello World"
+    return "Hello, world!"
 
 
 @app.get("/items", tags=["get_methods"])
@@ -47,7 +58,7 @@ async def add_item(store: schemas.CreateStore, db: Session = Depends(get_db)):
 
 
 @app.post("/delete_item/{item_id}")
-async def delete_item(item_id: str, db: Session = Depends(get_db)):
+async def delete_item(item_id: str, db: Session = Depends(get_db)) -> str:
     item_uuid = uuid.UUID(item_id)
     crud.delete_store(db, item_uuid)
     return f"Store with item_id: {item_uuid} has been deleted."

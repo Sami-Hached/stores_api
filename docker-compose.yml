@@ -1,16 +1,36 @@
-version: "1.0"
+version: "3"
 
 services:
+  api:
+    build: .
+    ports:
+      - "8000:80"
+    environment:
+      - DB_HOST=api_learning_sql
+      - DB_PASSWORD=secret_123
+      - DB_USER=sami
+      - DB_PORT=5432
+      - DB_DATABASE=learning_sql
+
   api_learning_sql:
     image: postgres:13
     environment:
-    - POSTGRES_DB=learning_sql
-    - POSTGRES_USER=sami
-    - POSTGRES_PASSWORD=secret_123
+      - POSTGRES_DB=learning_sql
+      - POSTGRES_USER=sami
+      - POSTGRES_PASSWORD=secret_123
     volumes:
-      - postgres_data:/var/lib/postgres/data/
+      - postgres_data:/var/lib/postgres/data
     ports:
       - "5432:5432"  # Expose the PostgreSQL container's port
+
+  api_learning_sql_test:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=learning_sql_test
+      - POSTGRES_USER=test-user
+      - POSTGRES_PASSWORD=non_secret
+    ports:
+      - "5433:5432"  # Use different host port (5433)
 
 volumes:
   postgres_data:
