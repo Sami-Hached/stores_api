@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from . import models
 from . import schemas
+from uuid import UUID
 
 
 def get_store(db: Session, store_id: int):
@@ -29,13 +30,26 @@ def create_store(db: Session, store: schemas.CreateStore) -> schemas.ViewStore:
     )
 
 
-def delete_store(db: Session, store_id: int):
+def delete_store(db: Session, store_id: int) -> None:
     db.query(models.StoresDB).filter(models.StoresDB.id == store_id).delete()
     db.commit()
-    return
 
 
-def delete_all_store(db: Session):
+def update_store(db: Session, store_id: UUID, updated_store: schemas.CreateStore) -> schemas.ViewStore:
+    (
+        db.query(models.StoresDB).
+        filter(models.StoresDB.id == store_id).
+        update(updated_store.dict())
+    )
+    db.commit()
+    return schemas.ViewStore(
+        id=store_id,
+        city=updated_store.city,
+        email=updated_store.email,
+        brand=updated_store.brand,
+    )
+
+
+def delete_all_store(db: Session) -> None:
     db.query(models.StoresDB).delete()
     db.commit()
-    return

@@ -2,6 +2,7 @@ import logging
 import os
 import uuid
 
+from sqlalchemy.exc import IntegrityError
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
 
@@ -11,12 +12,21 @@ from src.infrastructure.database import get_engine, get_session
 app = FastAPI()
 
 config = {
-        "user": os.environ["DB_USER"],
-        "password": os.environ["DB_PASSWORD"],
-        "host": os.environ["DB_HOST"],
-        "port": os.environ["DB_PORT"],
-        "database": os.environ["DB_DATABASE"],
-    }
+    "user": os.environ["DB_USER"],
+    "password": os.environ["DB_PASSWORD"],
+    "host": os.environ["DB_HOST"],
+    "port": os.environ["DB_PORT"],
+    "database": os.environ["DB_DATABASE"],
+}
+
+# # This config is only to be used while debugging
+# config = {
+#     "user": "sami",
+#     "password": "secret_123",
+#     "host": "localhost",
+#     "port": "5432",
+#     "database": "learning_sql",
+# }
 
 # This creates the database
 models.Base.metadata.create_all(bind=get_engine(config))
@@ -55,6 +65,20 @@ async def add_item(store: schemas.CreateStore, db: Session = Depends(get_db)):
     if db_store:
         raise HTTPException(status_code=400, detail="Email already exists")
     return crud.create_store(db=db, store=store)
+
+
+@app.put("/update_item/{item_id}")
+async def update_item(item_id: str, updated_store: schemas.CreateStore, db: Session = Depends(get_db)) -> dict:
+    item_uuid = uuid.UUID(item_id)
+
+    try:
+        result = crud.update_store(db, item_uuid, updated_store)
+    except IntegrityError as same_email:
+        raise HTTPException(401, detail=repr(same_email.detail))
+
+    return {
+        "msg": f"Store with item_id: {str(item_uuid)} has been updated."
+            }
 
 
 @app.post("/delete_item/{item_id}")

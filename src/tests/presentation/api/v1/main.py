@@ -8,14 +8,14 @@ from src.presentation.api.v1.main import app, get_db
 from src.infrastructure.database import get_session, get_engine
 from src.infrastructure import models
 
-
 test_config = {
-        "user": os.environ["TEST_DB_USER"],
-        "password": os.environ["TEST_DB_PASSWORD"],
-        "host": os.environ["TEST_DB_HOST"],
-        "port": os.environ["TEST_DB_PORT"],
-        "database": os.environ["TEST_DB_DATABASE"],
-    }
+    "user": os.environ["TEST_DB_USER"],
+    "password": os.environ["TEST_DB_PASSWORD"],
+    "host": os.environ["TEST_DB_HOST"],
+    "port": os.environ["TEST_DB_PORT"],
+    "database": os.environ["TEST_DB_DATABASE"],
+}
+
 
 def override_get_db():
     try:
@@ -24,6 +24,7 @@ def override_get_db():
         yield db
     finally:
         db.close()
+
 
 # for api methods to access the test database instead of the main one
 app.dependency_overrides[get_db] = override_get_db
@@ -61,6 +62,20 @@ def test_delete_store(preexisting_store):
     response = client.post(f"/delete_item/{preexisting_store['id']}")
     assert response.status_code == 200
     assert response.json() == f"Store with item_id: {preexisting_store['id']} has been deleted."
+
+
+def test_update_store(preexisting_store):
+    updated_store = {
+        "city": "updated_city",
+        "email": "meow_new@test.com",
+        "brand": "updated_brand"
+    }
+
+    response = client.put(f"/update_item/{preexisting_store['id']}", json=updated_store)
+    assert response.status_code == 200
+    assert response.json() == {
+        "msg": f"Store with item_id: {preexisting_store['id']} has been updated.",
+    }
 
 
 @pytest.fixture(autouse=True)
