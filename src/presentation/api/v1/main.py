@@ -68,17 +68,15 @@ async def add_item(store: schemas.CreateStore, db: Session = Depends(get_db)):
 
 
 @app.put("/update_item/{item_id}")
-async def update_item(item_id: str, updated_store: schemas.CreateStore, db: Session = Depends(get_db)) -> dict:
+async def update_item(item_id: str, updated_store: schemas.CreateStore, db: Session = Depends(get_db)) -> str:
     item_uuid = uuid.UUID(item_id)
 
     try:
-        result = crud.update_store(db, item_uuid, updated_store)
+        crud.update_store(db, item_uuid, updated_store)
     except IntegrityError as same_email:
         raise HTTPException(401, detail=repr(same_email.detail))
 
-    return {
-        "msg": f"Store with item_id: {str(item_uuid)} has been updated."
-            }
+    return f"Store with item_id: {item_uuid} has been updated."
 
 
 @app.post("/delete_item/{item_id}")

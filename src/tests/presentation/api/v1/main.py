@@ -73,9 +73,7 @@ def test_update_store(preexisting_store):
 
     response = client.put(f"/update_item/{preexisting_store['id']}", json=updated_store)
     assert response.status_code == 200
-    assert response.json() == {
-        "msg": f"Store with item_id: {preexisting_store['id']} has been updated.",
-    }
+    assert response.json() == f"Store with item_id: {preexisting_store['id']} has been updated."
 
 
 @pytest.fixture(autouse=True)
